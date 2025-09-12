@@ -1,21 +1,26 @@
 import express from "express"
-import cors from 'cors'
+import cors from "cors"
 import db from "./db/db.js"
 import path from "node:path";
 import dotenv from "dotenv";
 import { fileURLToPath } from "node:url";
 import imageRoutes from "./routes/image.route.js"
 import userRoutes from "./routes/user.route.js"
-import mangaRoutes from './routes/manga.route.js';
-import commandRoutes from './routes/command.route.js';
-import commandLineRoutes from './routes/commandLine.route.js';
+import mangaRoutes from "./routes/manga.route.js";
+import commandRoutes from "./routes/command.route.js";
+import commandLineRoutes from "./routes/commandLine.route.js";
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express()
 
 
-app.use(cors())
+
+app.use(cors({
+  origin: ["https://dessinsgore.fr"], // domaine frontend
+  credentials: true
+}));
+
 
 app.use(express.json())
 const port = process.env.PORT || 5000
