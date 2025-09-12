@@ -48,7 +48,7 @@ const login = async(req, res) => {
         res.status(200).json({
             message: user.email+" is connected",
  token : jwt.sign({id : user._id}, process.env.SECRET_KEY),
-            user: user.email
+            
         })
     } catch (error) {
         console.log(error)
