@@ -83,25 +83,50 @@ const deleteCommand = async(req, res) => {
     }
 }
 
+const getPanier = async (req, res) => {
+  try {
+    let panier;
 
- const getPanier = async(req, res) => {
-    if(!req.user){
-        return res.status(404).json({message: 'erreur 404'})
+    if (req.user) {
+      // 🔑 Cas 1 : utilisateur connecté
+      panier = await Command.findOne({ user: req.user.id, status: true });
+    } else if (req.query.cartId) {
+      // 🛒 Cas 2 : visiteur avec cartId passé en query
+      panier = await Command.findOne({ cartId: req.query.cartId, status: true });
+    } else {
+      return res.status(400).json({ message: "Aucun utilisateur ou cartId fourni" });
     }
-    try {
-        const panier = await Command.findOne({user: req.user.id, status: true})
-        if(!panier){
-            return res.status(404).json({message: "panier doesn't exist"})
-        }
-        const commandLines = await CommandLine.find({command: panier._id}).populate("ref", "titre tome prix")
-        const total = commandLines.reduce((sum, line)=>{
-            return sum + line.ref.prix * line.quantity
-        }, 0)
-        return res.status(200).json({...panier.toObject(), commandLines, total})    } catch (error) {
-        console.log(error)
-        res.status(500).json({message: "Server error", error: error})
+
+    if (!panier) {
+      return res.status(200).json({
+        commandLines: [],
+        total: 0,
+        _id: null,
+        message: "Aucun panier actif"
+      });
     }
-}
+
+    // 📦 Récupération des lignes de commande
+    const commandLines = await CommandLine.find({ command: panier._id })
+      .populate("ref", "titre tome prix");
+
+    // 💶 Calcul du total
+    const total = commandLines.reduce((sum, line) => {
+      return sum + line.ref.prix * line.quantity;
+    }, 0);
+
+    // ✅ Réponse finale
+    return res.status(200).json({
+      ...panier.toObject(),
+      commandLines,
+      total
+    });
+  } catch (error) {
+    console.error("❌ Erreur getPanier:", error);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+
 
 const getMyCommandes = async(req, res) => {
     if(!req.user){
