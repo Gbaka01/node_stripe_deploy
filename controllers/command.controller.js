@@ -85,47 +85,52 @@ const deleteCommand = async(req, res) => {
 
 const getPanier = async (req, res) => {
   try {
-    let panier;
+    let command;
 
     if (req.user) {
       // 🔑 Cas 1 : utilisateur connecté
-      panier = await Command.findOne({ user: req.user.id, status: true });
+      command = await Command.findOne({ user: req.user.id, status: true });
     } else if (req.query.cartId) {
-      // 🛒 Cas 2 : visiteur avec cartId passé en query
-      panier = await Command.findOne({ cartId: req.query.cartId, status: true });
+      // 🛒 Cas 2 : visiteur avec cartId
+      command = await Command.findOne({ cartId: req.query.cartId, status: true });
     } else {
       return res.status(400).json({ message: "Aucun utilisateur ou cartId fourni" });
     }
 
-    if (!panier) {
+    if (!command) {
       return res.status(200).json({
+        _id: null,
         commandLines: [],
         total: 0,
-        _id: null,
-        message: "Aucun panier actif"
+        message: "Aucun panier actif",
       });
     }
 
-    // 📦 Récupération des lignes de commande
-    const commandLines = await CommandLine.find({ command: panier._id })
-      .populate("ref", "titre tome prix");
+    // 📦 On récupère les lignes du panier
+    const commandLines = await CommandLine.find({ command: command._id })
+      .populate("ref", "titre tome prix"); // On enrichit avec les infos du produit
 
     // 💶 Calcul du total
-    const total = commandLines.reduce((sum, line) => {
-      return sum + line.ref.prix * line.quantity;
-    }, 0);
+    const total = commandLines.reduce(
+      (sum, line) => sum + (line.ref?.prix || 0) * line.quantity,
+      0
+    );
 
     // ✅ Réponse finale
     return res.status(200).json({
-      ...panier.toObject(),
+      ...command.toObject(),
       commandLines,
-      total
+      total,
     });
   } catch (error) {
     console.error("❌ Erreur getPanier:", error);
-    res.status(500).json({ message: "Erreur serveur", error: error.message });
+    return res.status(500).json({
+      message: "Erreur serveur",
+      error: error.message,
+    });
   }
 };
+
 
 
 const getMyCommandes = async(req, res) => {
