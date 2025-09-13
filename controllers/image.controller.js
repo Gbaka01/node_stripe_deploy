@@ -35,7 +35,7 @@ const createImage = async(req,res)=>{
 
 const getAllImages = async (req, res) => {
   try {
-    const images = await Image.findById(req.params.id);
+    const images = await Image.find().populate("images" , "name alt");
 
     // On renvoie toujours un objet avec la clé `images`
     return res.status(200).json({ images });
