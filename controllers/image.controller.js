@@ -35,10 +35,10 @@ const createImage = async(req,res)=>{
 
 const getAllImages = async (req, res) => {
   try {
-    const images = await Image.find().populate("images" , "name alt");
+    const images = await Image.find();
 
     // On renvoie toujours un objet avec la clé `images`
-    return res.status(200).json({ images });
+    return res.status(200).json(images);
   } catch (error) {
     console.error("Erreur getAllImages :", error);
     return res.status(500).json({

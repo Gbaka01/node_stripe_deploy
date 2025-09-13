@@ -82,44 +82,26 @@ const deleteCommand = async(req, res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
-const getPanier = async (req, res) => {
-    if (!req.user) {
-        return res.status(401).json({ message: "Utilisateur non authentifié" });
-    }
 
+
+ const getPanier = async(req, res) => {
+    if(!req.user){
+        return res.status(404).json({message: 'erreur 404'})
+    }
     try {
-        // 🔎 On cherche le panier actif de l'utilisateur
-        const panier = await Command.findOne({ user: req.user.id, status: true });
-
-        if (!panier) {
-            return res.status(200).json({
-                commandLines: [],
-                total: 0,
-                _id: null,
-                message: "Aucun panier actif"
-            });
+        const panier = await Command.findOne({user: req.user.id, status: true})
+        if(!panier){
+            return res.status(404).json({message: "panier doesn't exist"})
         }
-
-        // 📦 On récupère les lignes associées
-        const commandLines = await CommandLine.find({ command: panier._id })
-            .populate("ref", "titre tome prix");
-
-        // 💶 Calcul du total
-        const total = commandLines.reduce((sum, line) => {
-            return sum + line.ref.prix * line.quantity;
-        }, 0);
-
-        // ✅ On renvoie le panier
-        return res.status(200).json({
-            ...panier.toObject(),
-            commandLines,
-            total
-        });
-    } catch (error) {
-        console.error("❌ Erreur getPanier:", error);
-        res.status(500).json({ message: "Erreur serveur", error: error.message });
+        const commandLines = await CommandLine.find({command: panier._id}).populate("ref", "titre tome prix")
+        const total = commandLines.reduce((sum, line)=>{
+            return sum + line.ref.prix * line.quantity
+        }, 0)
+        return res.status(200).json({...panier.toObject(), commandLines, total})    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: "Server error", error: error})
     }
-};
+}
 
 const getMyCommandes = async(req, res) => {
     if(!req.user){

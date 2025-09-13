@@ -3,7 +3,7 @@ import joi from "joi";
 export default function commandValidation(body){
     const commandCreate = joi.object({
       status: joi.boolean().required(),
-      user: joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
+      user: joi.string().regex(/^[0-9a-fA-F]{24}$/)
     })
 
     const commandUpdate = joi.object({
