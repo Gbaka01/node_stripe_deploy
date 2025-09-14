@@ -17,7 +17,9 @@ const app = express()
 
 
 
-app.use(cors());
+app.use(cors({
+    origin: "https://dessinsgore.fr"
+}));
 
 
 app.use(express.json())
