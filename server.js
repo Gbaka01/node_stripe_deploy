@@ -9,6 +9,7 @@ import userRoutes from "./routes/user.route.js"
 import mangaRoutes from "./routes/manga.route.js";
 import commandRoutes from "./routes/command.route.js";
 import commandLineRoutes from "./routes/commandLine.route.js";
+import paymentRoutes from './routes/payment.route.js'
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,3 +38,4 @@ app.use('/user', userRoutes)
 app.use('/commandline', commandLineRoutes);
 app.use('/command', commandRoutes);
 app.use('/manga', mangaRoutes);
+app.use('/api/payment', paymentRoutes);
