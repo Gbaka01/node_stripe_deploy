@@ -1,4 +1,3 @@
-
 import Image from "../models/image.model.js"
 import imageValidation from "../validations/image.validation.js"
 import fs from "node:fs"
@@ -33,20 +32,15 @@ const createImage = async(req,res)=>{
     }
 }
 
-const getAllImages = async (req, res) => {
-  try {
-    const images = await Image.find();
-
-    // On renvoie toujours un objet avec la clé `images`
-    return res.status(200).json(images);
-  } catch (error) {
-    console.error("Erreur getAllImages :", error);
-    return res.status(500).json({
-      message: "Erreur serveur lors de la récupération des images",
-      error: error.message,
-    });
-  }
-};
+const getAllImages = async(req, res) => {
+    try {
+        const images = await Image.find()
+        return res.status(200).json(images)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: "Server error", error: error})
+    }
+}
 
 const getImageById = async(req,res) => {
     try {

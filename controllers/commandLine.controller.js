@@ -2,47 +2,28 @@ import CommandLine from "../models/commandLine.model.js"
 import Command from "../models/command.model.js"
 import commandLineValidation from "../validations/commandLine.validation.js"
 
-const createCommandLine = async (req, res) => {
-  try {
-    const { body, user } = req;
-
-    // 🔑 Si user existe → panier utilisateur
-    // 🔑 Sinon → panier visiteur avec cartId
-    let command;
-
-    if (user) {
-      command = await Command.findOne({ user: user.id, status: true });
-    } else if (body.cartId) {
-      command = await Command.findOne({ cartId: body.cartId, status: true });
-      if (!command) {
-        command = new Command({ cartId: body.cartId, status: true });
-        await command.save();
-      }
-    } else {
-      return res.status(400).json({ message: "No user or cartId provided" });
+const createCommandLine = async(req,res)=>{
+    try {
+        const {body, user} = req
+        const command = await Command.findOne({user: user.id, status: true})
+        console.log(body)
+        if(!body){
+            return res.status(400).json({message: "no data in the request"})
+        }
+        const line = {...body, command: command._id.toString()}
+        console.log(line)
+        const {error} = commandLineValidation(line).commandLineCreate
+        if(error){
+            return res.status(401).json(error.details[0].message)
+        }
+        const commandLine = new CommandLine(line)
+        const newCommandLine = await commandLine.save()
+        return res.status(201).json(newCommandLine)        
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: "Server error", error: error})
     }
-
-    if (!body.ref) {
-      return res.status(400).json({ message: "No article reference" });
-    }
-
-    const line = { ref: body.ref, command: command._id.toString() };
-
-    const { error } = commandLineValidation(line).commandLineCreate;
-    if (error) {
-      return res.status(401).json(error.details[0].message);
-    }
-
-    const commandLine = new CommandLine(line);
-    const newCommandLine = await commandLine.save();
-
-    return res.status(201).json(newCommandLine);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error });
-  }
-};
-
+}
 
 const getAllCommandLines = async(req, res) => {
     try {

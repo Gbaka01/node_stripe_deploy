@@ -3,6 +3,7 @@ import Command from "../models/command.model.js"
 import userValidation from "../validations/user.validation.js"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+
 const register = async(req,res)=>{
     try {
         const {body} = req
@@ -23,7 +24,7 @@ const register = async(req,res)=>{
         command.user = user._id
         await command.save()
         const newUser = await user.save()
-        return res.status(201).json(newUser)
+        return res.status(201).json(newUser)        
     } catch (error) {
         console.log(error)
         res.status(500).json({message: "Server error", error: error})
@@ -49,7 +50,7 @@ const login = async(req, res) => {
         }
         res.status(200).json({
             message: user.email+" is connected",
-            token: jwt.sign({ id: user._id, email:  user.email, address: user.address, zipcode: user.zipcode, town: user.town }, process.env.SECRET_KEY, { expiresIn: "24h" }),
+            token: jwt.sign({ id: user._id, email:  user.email, address: user.address, zipcode: user.zipcode, town: user.town }, process.env.SECRET_KEY, { expiresIn: "12h" }),
             user: user.email
         })
     } catch (error) {
@@ -57,6 +58,7 @@ const login = async(req, res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
+
 const getAllUsers = async(req, res) => {
     try {
         const users = await User.find()
@@ -66,6 +68,7 @@ const getAllUsers = async(req, res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
+
 const getUserById = async(req,res) => {
     try {
         const user = await User.findById(req.params.id)
@@ -78,12 +81,14 @@ const getUserById = async(req,res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
+
 const updateUser = async(req,res) => {
     try {
         const {body} = req
         if(!body){
             return res.status(400).json({message: "No data in the request"})
         }
+
         const {error} = userValidation(body).userUpdate
         if(error){
             return res.status(401).json(error.details[0].message)
@@ -98,6 +103,7 @@ const updateUser = async(req,res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
+
 const deleteUser = async(req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id)
@@ -110,16 +116,5 @@ const deleteUser = async(req, res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
+
 export { register, login, getAllUsers, getUserById, updateUser, deleteUser }
-
-
-
-
-
-
-
-
-
-
-
-
