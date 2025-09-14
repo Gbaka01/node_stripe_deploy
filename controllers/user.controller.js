@@ -29,26 +29,28 @@ const register = async(req,res)=>{
         res.status(500).json({message: "Server error", error: error})
     }
 }
+
 const login = async(req, res) => {
     try {
         const {email, password } = req.body
         const { error } = userValidation(req.body).userLogin
+    
         if(error){
             return res.status(401).json(error.details[0].message)
         }
+
         const user = await User.findOne({ email: email})
         if(!user){
             return res.status(400).json({message: "invalid credentials"})
         }
-        const isMatch = await bcrypt.compare(password, user.password)
+        const isMatch = bcrypt.compare(password, user.password)
         if(!isMatch){
             return res.status(400).json({message: "invalid invalides"})
         }
         res.status(200).json({
-       message: user.email+" is connected",
-            token: jwt.sign({ id: user._id, email:  user.email, address: user.address, zipcode: user.zipcode, town: user.town }, process.env.SECRET_KEY),
+            message: user.email+" is connected",
+            token: jwt.sign({ id: user._id, email:  user.email, address: user.address, zipcode: user.zipcode, town: user.town }, process.env.SECRET_KEY, { expiresIn: "24h" }),
             user: user.email
-            
         })
     } catch (error) {
         console.log(error)
