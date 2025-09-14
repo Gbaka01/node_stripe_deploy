@@ -83,8 +83,6 @@ const deleteCommand = async(req, res) => {
     }
 }
 
-import Command from "../models/command.model.js";
-import CommandLine from "../models/commandLine.model.js";
 
 const getPanier = async (req, res) => {
   try {
