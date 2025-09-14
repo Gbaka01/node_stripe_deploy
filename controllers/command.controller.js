@@ -83,6 +83,9 @@ const deleteCommand = async(req, res) => {
     }
 }
 
+import Command from "../models/command.model.js";
+import CommandLine from "../models/commandLine.model.js";
+
 const getPanier = async (req, res) => {
   try {
     let command;
@@ -90,25 +93,26 @@ const getPanier = async (req, res) => {
     if (req.user) {
       // 🔑 Cas 1 : utilisateur connecté
       command = await Command.findOne({ user: req.user.id, status: true });
+
+      if (!command) {
+        command = new Command({ user: req.user.id, status: true });
+        await command.save();
+      }
     } else if (req.query.cartId) {
       // 🛒 Cas 2 : visiteur avec cartId
       command = await Command.findOne({ cartId: req.query.cartId, status: true });
+
+      if (!command) {
+        command = new Command({ cartId: req.query.cartId, status: true });
+        await command.save();
+      }
     } else {
       return res.status(400).json({ message: "Aucun utilisateur ou cartId fourni" });
     }
 
-    if (!command) {
-      return res.status(200).json({
-        _id: null,
-        commandLines: [],
-        total: 0,
-        message: "Aucun panier actif",
-      });
-    }
-
-    // 📦 On récupère les lignes du panier
+    // 📦 On récupère les lignes associées
     const commandLines = await CommandLine.find({ command: command._id })
-      .populate("ref", "titre tome prix"); // On enrichit avec les infos du produit
+      .populate("ref", "titre tome prix");
 
     // 💶 Calcul du total
     const total = commandLines.reduce(
