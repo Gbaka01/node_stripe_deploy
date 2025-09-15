@@ -1,7 +1,7 @@
 import CommandLine from "../models/commandLine.model.js"
 import Command from "../models/command.model.js"
 import commandLineValidation from "../validations/commandLine.validation.js"
-export const createCommandLine = async (req, res) => {
+const createCommandLine = async (req, res) => {
   try {
     const { ref, quantity = 1, cartId } = req.body;
 
