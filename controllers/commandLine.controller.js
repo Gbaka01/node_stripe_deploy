@@ -1,7 +1,6 @@
 import CommandLine from "../models/commandLine.model.js"
 import Command from "../models/command.model.js"
 import commandLineValidation from "../validations/commandLine.validation.js"
-
 const createCommandLine = async(req,res)=>{
     try {
         const {body, user} = req
@@ -18,13 +17,12 @@ const createCommandLine = async(req,res)=>{
         }
         const commandLine = new CommandLine(line)
         const newCommandLine = await commandLine.save()
-        return res.status(201).json(newCommandLine)        
+        return res.status(201).json(newCommandLine)
     } catch (error) {
         console.log(error)
         res.status(500).json({message: "Server error", error: error})
     }
 }
-
 const getAllCommandLines = async(req, res) => {
     try {
         const commandLines = await CommandLine.find()
@@ -34,7 +32,6 @@ const getAllCommandLines = async(req, res) => {
         res.status(500).json({message: "Server Error", error: error})
     }
 }
-
 const getCommandLineById = async(req,res) => {
     try {
         const commandLine = await CommandLine.findById(req.params.id)
@@ -47,14 +44,12 @@ const getCommandLineById = async(req,res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
-
 const updateCommandLine = async(req,res) => {
     try {
         const {body} = req
         if(!body){
             return res.status(400).json({message: "No data in the request"})
         }
-
         const {error} = commandLineValidation(body).commandLineUpdate
         if(error){
             return res.status(401).json(error.details[0].message)
@@ -69,7 +64,6 @@ const updateCommandLine = async(req,res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
-
 const deleteCommandLine = async(req, res) => {
     try {
         const commandLine = await CommandLine.findByIdAndDelete(req.params.id)
@@ -82,5 +76,4 @@ const deleteCommandLine = async(req, res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
-
 export { createCommandLine, getAllCommandLines, getCommandLineById, updateCommandLine, deleteCommandLine }
