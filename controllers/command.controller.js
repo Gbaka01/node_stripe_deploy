@@ -76,53 +76,23 @@ const deleteCommand = async(req, res) => {
         res.status(500).json({message: "Server error", error: error})
     }
 }
-const getPanier = async (req, res) => {
-  try {
-    let command;
-
-    if (req.user) {
-      // 🔑 Cas 1 : utilisateur connecté
-      command = await Command.findOne({ user: req.user.id, status: true });
-
-      if (!command) {
-        command = new Command({ user: req.user.id, status: true });
-        await command.save();
-      }
-    } else if (req.query.cartId) {
-      // 🛒 Cas 2 : visiteur avec cartId
-      command = await Command.findOne({ cartId: req.query.cartId, status: true });
-
-      if (!command) {
-        command = new Command({ cartId: req.query.cartId, status: true });
-        await command.save();
-      }
-    } else {
-      return res.status(400).json({ message: "Aucun utilisateur ou cartId fourni" });
+const getPanier = async(req, res) => {
+    if(!req.user){
+        return res.status(404).json({message: 'erreur 404'})
     }
+    try {
         const panier = await Command.findOne({user: req.user.id, status: true})
         if(!panier){
             return res.status(404).json({message: "panier doesn't exist"})
         }
-
-    // 📦 On récupère les lignes associées
-    const commandLines = await CommandLine.find({ command: command._id })
-      .populate("ref", "titre tome prix");
-
-    // 💶 Calcul du total
-    const total = commandLines.reduce(
-      (sum, line) => sum + (line.ref?.prix || 0) * line.quantity,
-      0
-    );
-
-    // ✅ Réponse finale
- return res.status(200).json({...panier.toObject(), commandLines, total})
-  } catch (error) {
-    console.error("❌ Erreur getPanier:", error);
-    return res.status(500).json({
-      message: "Erreur serveur",
-      error: error.message,
-    });
-  }
+        const commandLines = await CommandLine.find({command: panier._id}).populate("ref", "titre tome prix")
+        const total = commandLines.reduce((sum, line)=>{
+            return sum + line.ref.prix * line.quantity
+        }, 0)
+        return res.status(200).json({...panier.toObject(), commandLines, total})    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: "Server error", error: error})
+    }
 }
 const getMyCommandes = async(req, res) => {
     if(!req.user){
