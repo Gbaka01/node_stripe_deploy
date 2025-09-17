@@ -50,7 +50,7 @@ const login = async(req, res) => {
         }
         res.status(200).json({
             message: user.email+" is connected",
-            token: jwt.sign({ id: user._id, email:  user.email, address: user.address, zipcode: user.zipcode, town: user.town }, process.env.SECRET_KEY),
+            token: jwt.sign({ id: user._id, email:  user.email, address: user.address, zipcode: user.zipcode, town: user.town }, process.env.SECRET_KEY, { expiresIn: "24h" }),
             user: user.email
         })
     } catch (error) {
