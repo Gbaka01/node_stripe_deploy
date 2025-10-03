@@ -15,8 +15,7 @@ const createImage = async(req,res)=>{
             return res.status(400).json({message: "No data in the request"})
         }
         if(req.file){
-             const protocol = req.headers['x-forwarded-proto'] || req.protocol; 
-body.nom = `${protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+            body.name = req.protocol+'://'+req.get("host")+'/uploads/'+req.file.filename
         }
         const {error} = imageValidation(body).imageCreate
         if(error){
