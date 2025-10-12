@@ -30,7 +30,7 @@ app.listen(port, () => {
 db()
 
 // Dossier "uploads" rendu statique : cela permet de consulter les images stockées dans ce dossier depuis un navigateur en utilisant les uri en bdd
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // routes----------
 app.use('/image', imageRoutes)
