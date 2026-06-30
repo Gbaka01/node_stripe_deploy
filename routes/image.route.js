@@ -25,9 +25,8 @@ router.post("/upload", upload.single("name"), async (req, res) => {
   }
 
   res.json({
-    message: "Image reçue",
-    file: req.file,
-    alt: req.body.alt,
+   url: result.secure_url,
+  public_id: result.public_id,
   });
 });
 
