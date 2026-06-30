@@ -16,21 +16,29 @@ router.delete("/:id", deleteImage);
 
 
 
-router.post("/upload", upload.single("image"), async (req, res) => {
+router.post("/upload", upload.single("name"), async (req, res) => {
   try {
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "dessinsgore",
-    });
+    console.log(req.body);
+    console.log(req.file);
 
-    res.json({
-      message: "Image uploadée avec succès",
-      url: result.secure_url,
-      public_id: result.public_id,
+    if (!req.file) {
+      return res.status(400).json({ message: "Aucun fichier reçu" });
+    }
+
+    // upload Cloudinary ou sauvegarde MongoDB ici
+
+    res.status(201).json({
+      message: "Image enregistrée avec succès",
+      file: req.file,
+      alt: req.body.alt,
     });
   } catch (error) {
-    res.status(500).json({ message: "Erreur upload Cloudinary", error });
+    console.error("Erreur serveur upload :", error);
+    res.status(500).json({
+      message: "Erreur interne du serveur",
+      error: error.message,
+    });
   }
 });
-
 
 export default router;
